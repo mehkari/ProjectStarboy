@@ -18,11 +18,11 @@ const int ci_pushButton_3 = 13;
 const int ci_Ultrasonic_Front_Ping = 2;
 const int ci_Ultrasonic_Front_Data = 3;
 
-const int ci_Ultrasonic_Left_Ping = 4;
-const int ci_Ultrasonic_Left_Data = 5;
+const int ci_Ultrasonic_Right2_Ping = 4;
+const int ci_Ultrasonic_Right2_Data = 5;
 
-const int ci_Ultrasonic_Right_Ping = 6;
-const int ci_Ultrasonic_Right_Data = 7;
+const int ci_Ultrasonic_Right1_Ping = 6;
+const int ci_Ultrasonic_Right1_Data = 7;
 
 const int ci_Left_Motor = 8;
 const int ci_Right_Motor = 9;
@@ -35,20 +35,21 @@ const int ci_I2C_SCL = A5;   //I2C clock = yellow
 
 //variables
 int phase = 0;
-double PingRreturn;
+double PingFreturn;
+double PingR1return;
+double PingR2return; 
 
 unsigned long leftMotorSpeed;
 unsigned long rightMotorSpeed;
 
 unsigned long ultraSonicDistanceF;
-unsigned long ultraSonicDistanceL;
-unsigned long ultraSonicDistanceR;
+unsigned long ultraSonicDistanceR2;
+unsigned long ultraSonicDistanceR1;
 
 unsigned int button2Counter = 0;
 unsigned int button3Counter = 0;
 
 #define DEBUG_ULTRASONIC
-
 
 void setup() {
   // put your setup code here, to run once:
@@ -65,11 +66,11 @@ void setup() {
   pinMode(ci_Ultrasonic_Front_Ping, OUTPUT);
   pinMode(ci_Ultrasonic_Front_Data, INPUT);
 
-  pinMode(ci_Ultrasonic_Left_Ping, OUTPUT);
-  pinMode(ci_Ultrasonic_Left_Data, INPUT);
+  pinMode(ci_Ultrasonic_Right2_Ping, OUTPUT);
+  pinMode(ci_Ultrasonic_Right2_Data, INPUT);
 
-  pinMode(ci_Ultrasonic_Right_Ping, OUTPUT);
-  pinMode(ci_Ultrasonic_Right_Data, INPUT);
+  pinMode(ci_Ultrasonic_Right1_Ping, OUTPUT);
+  pinMode(ci_Ultrasonic_Right1_Data, INPUT);
 
   //Motor Set-Up
   
@@ -92,6 +93,38 @@ void setup() {
   encoder_RightMotor.setReversed(true);
   }
 
+double PingF()
+{
+  int echoTime;
+  digitalWrite(ci_Ultrasonic_Front_Ping, HIGH);
+  delayMicroseconds(10);  
+  digitalWrite(ci_Ultrasonic_Front_Ping, LOW);
+  echoTime = pulseIn(ci_Ultrasonic_Front_Data, HIGH, 10000);
+  ultraSonicDistanceF = (echoTime/58);
+  return (ultraSonicDistanceF);
+}  
+
+ double PingR1()
+{
+  int echoTime;
+  digitalWrite(ci_Ultrasonic_Right1_Ping, HIGH);
+  delayMicroseconds(10);  
+  digitalWrite(ci_Ultrasonic_Right1_Ping, LOW);
+  echoTime = pulseIn(ci_Ultrasonic_Right1_Data, HIGH, 10000);
+  ultraSonicDistanceR1 = (echoTime/58);
+  return (ultraSonicDistanceR1);
+}
+ double PingR2()
+{
+  int echoTime;
+  digitalWrite(ci_Ultrasonic_Right2_Ping, HIGH);
+  delayMicroseconds(10);  
+  digitalWrite(ci_Ultrasonic_Right2_Ping, LOW);
+  echoTime = pulseIn(ci_Ultrasonic_Right2_Data, HIGH, 10000);
+  ultraSonicDistanceR2 = (echoTime/58);
+  return (ultraSonicDistanceR2);
+}
+
 void loop() {
 ////Initializing the button clicks
 //  if (digitalRead(ci_pushButton_2) == LOW)
@@ -106,58 +139,43 @@ void loop() {
 
 if (phase ==0)
 {
-  servo_RightMotor.writeMicroseconds(1680);
-  servo_LeftMotor.writeMicroseconds(1680);
-  //Serial.println("phase 0"); 
-  if (PingF()<=20 && PingF()>1)
+  Serial.println(PingR1());
+  //Serial.println(PingF());
+  servo_RightMotor.writeMicroseconds(1700);
+  servo_LeftMotor.writeMicroseconds(1700);
+  PingFreturn= PingF();
+  
+  if (PingFreturn<=25 && PingFreturn>1)
   {
-      phase++;
+        phase++;
   }
 }
 
 if (phase==1)
 {
+      servo_RightMotor.writeMicroseconds(1700);
+      servo_LeftMotor.writeMicroseconds(1500);
+      PingR1return = PingR1();
+      if((PingR1return>=5 && PingR1return<=8))
+      {
+        phase++;
+      } 
+}
+if(phase==2)
+{
       servo_RightMotor.writeMicroseconds(1650);
       servo_LeftMotor.writeMicroseconds(1500);
-      PingRreturn=PingR();
-      if (PingRreturn<=7 && PingRreturn>1)
+      PingR1return = PingR1();
+      PingR2return = PingR2();
+      if(((PingR1return - PingR2return)<=3) && ((PingR1return - PingR2return)>=1))
       {
-      Serial.println("stop");
-      Serial.println(PingR());
-      phase++;
-      }
+        phase++;
+      } 
 }
-if (phase==2)
+if (phase==3)
 {
-      //Serial.println(PingR()); 
-      servo_RightMotor.writeMicroseconds(1680);
-      servo_LeftMotor.writeMicroseconds(1680);
+      servo_RightMotor.writeMicroseconds(1500);
+      servo_LeftMotor.writeMicroseconds(1500);
 }
-    
 }
-
-
-double PingF()
-{
-  int echoTime;
-  
-  digitalWrite(ci_Ultrasonic_Front_Ping, HIGH);
-  delayMicroseconds(10);  
-  digitalWrite(ci_Ultrasonic_Front_Ping, LOW);
-  echoTime = pulseIn(ci_Ultrasonic_Front_Data, HIGH, 10000);
-  ultraSonicDistanceF = (echoTime/58);
-  
-  return (ultraSonicDistanceF);
-}  
-
- double PingR()
-{
-  int echoTime;
-  digitalWrite(ci_Ultrasonic_Right_Ping, HIGH);
-  delayMicroseconds(10);  
-  digitalWrite(ci_Ultrasonic_Right_Ping, LOW);
-  echoTime = pulseIn(ci_Ultrasonic_Right_Data, HIGH, 10000);
-  ultraSonicDistanceR = (echoTime/58);
-  return (ultraSonicDistanceR);
-}  
 
