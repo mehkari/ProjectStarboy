@@ -35,6 +35,7 @@ const int ci_I2C_SCL = A5;   //I2C clock = yellow
 
 //variables
 int phase = 0;
+double PingRreturn;
 
 unsigned long leftMotorSpeed;
 unsigned long rightMotorSpeed;
@@ -92,7 +93,6 @@ void setup() {
   }
 
 void loop() {
-//delay(4000);
 ////Initializing the button clicks
 //  if (digitalRead(ci_pushButton_2) == LOW)
 //  {
@@ -106,8 +106,10 @@ void loop() {
 
 if (phase ==0)
 {
-  Serial.println("phase 0"); 
-  if (PingF()<=20 && PingF()>17)
+  servo_RightMotor.writeMicroseconds(1680);
+  servo_LeftMotor.writeMicroseconds(1680);
+  //Serial.println("phase 0"); 
+  if (PingF()<=20 && PingF()>1)
   {
       phase++;
   }
@@ -115,19 +117,27 @@ if (phase ==0)
 
 if (phase==1)
 {
-      Serial.println("phase 1");
-      if (PingR()<=5 && (PingR()>1))
+      servo_RightMotor.writeMicroseconds(1650);
+      servo_LeftMotor.writeMicroseconds(1500);
+      PingRreturn=PingR();
+      if (PingRreturn<=7 && PingRreturn>1)
+      {
+      Serial.println("stop");
+      Serial.println(PingR());
       phase++;
+      }
 }
 if (phase==2)
 {
-  Serial.println("phase 2");
+      //Serial.println(PingR()); 
+      servo_RightMotor.writeMicroseconds(1680);
+      servo_LeftMotor.writeMicroseconds(1680);
 }
     
 }
 
 
- double PingF()
+double PingF()
 {
   int echoTime;
   
