@@ -145,7 +145,7 @@ if (phase ==0)
   servo_LeftMotor.writeMicroseconds(1700);
   PingFreturn= PingF();
   
-  if (PingFreturn<=25 && PingFreturn>1)
+  if (PingFreturn<=30 && PingFreturn>1)
   {
         phase++;
   }
@@ -163,7 +163,7 @@ if (phase==1)
 }
 if(phase==2)
 {
-      servo_RightMotor.writeMicroseconds(1650);
+      servo_RightMotor.writeMicroseconds(1600);
       servo_LeftMotor.writeMicroseconds(1500);
       PingR1return = PingR1();
       PingR2return = PingR2();
